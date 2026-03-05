@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רישום לגן הקסום - תשפ"ו</title>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <style>
+        :root { --primary: #2c5282; --bg: #f7fafc; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; background: white; margin: auto; padding: 40px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        h1 { color: var(--primary); text-align: center; margin-bottom: 5px; }
+        h3 { border-bottom: 2px solid var(--primary); padding-bottom: 5px; color: var(--primary); margin-top: 30px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+
+        .agreement-box { background: #fdfdfd; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; height: 300px; overflow-y: scroll; margin-bottom: 20px; line-height: 1.6; font-size: 14px; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .full-width { grid-column: span 2; }
+        
+        .field { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        textarea { height: 80px; resize: vertical; }
+
+        .signature-area { border: 2px dashed #cbd5e0; background: #fff; margin-top: 10px; border-radius: 8px; position: relative; }
+        canvas { width: 100%; height: 150px; cursor: crosshair; }
+        .clear-btn { position: absolute; left: 10px; top: 10px; background: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 30px; transition: 0.3s; }
+        .btn-submit:hover { background: #1a365d; }
+
+        @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } .full-width { grid-column: span 1; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>הסכם גן הילדים (הגן הקסום)</h1>
+    <p class="subtitle">עמותת הילה / ילדי רחל ברכה - שנה"ל תשפ"ו</p>
+
+    <div class="agreement-box">
+        <strong>תנאי ההתקשרות והתקנון:</strong><br><br>
+        • <b>עבודה בימי חול:</b> א'-ה' 07:30-16:00, ימי שישי 07:30-12:00.<br>
+        • בימי שבת וחג וכל יום המוגדר כשבתון - אין פעילות בגן.<br>
+        • <b>ביטוח:</b> כל ילד מבוטח מרגע כניסתו לגן ועד צאתו (בשעות הפעילות בלבד). אין ביטוח מחוץ לכותלי הגן.<br>
+        • אחריות המעון פוסקת ברגע העברת הילד לידי ההורה או מי מטעמו.<br>
+        • <b>איחורים:</b> נא להגיע לאסוף את הילדים עד 5 דקות לפני סיום הפעילות. איחור גורם לעיכוב הצוות ופגיעה בזמנם הפרטי.<br>
+        • <b>מחלות:</b> לא יתקבל ילד עם חום (מעל 37.5), שלשולים, הקאות או דלקות עיניים מדבקות. לא יינתנו תרופות בגן ללא מרשם רופא ברור.<br>
+        • <b>תשלומים:</b> התשלום יבוצע ב-12 המחאות דחויות (1 לכל חודש). יש להשאיר את סעיף המוטב ריק לצורך חותמת הגן.<br>
+        • <b>ביטול רישום:</b> הודעה על הפסקת פעילות תוגש בכתב חודש מראש. לא יינתן החזר על חודש הודעת הביטול.<br>
+        • <b>כוח עליון:</b> במקרה של עצירת פעילות עקב מלחמה או הנחיות ממשלה, לא יינתן החזר על החודש השוטף. בחודש השני יגבה תשלום חלקי (10 ימים).<br>
+        • <b>אופי הגן:</b> הגן הוא גן חרדי. אנו מבקשים להתאים את הלבוש וההתנהגות לרוח המקום.<br>
+        • הגן אינו אחראי על נזקי עגלות או ציוד אישי שהושאר בשטח הגן.
+    </div>
+
+    <form id="regForm">
+        <h3>פרטי הילד/ה</h3>
+        <div class="grid">
+            <div class="field">
+                <label>שם מלא של הילד/ה *</label>
+                <input type="text" name="childName" required placeholder="לדוגמה: ישראל ישראלי">
+            </div>
+            <div class="field">
+                <label>תעודת זהות ילד/ה *</label>
+                <input type="text" name="childID" required maxlength="9">
+            </div>
+            <div class="field">
+                <label>תאריך לידה *</label>
+                <input type="date" name="childDOB" required>
+            </div>
+            <div class="field">
+                <label>קופת חולים *</label>
+                <select name="healthFund" required>
+                    <option value="">בחר קופה...</option>
+                    <option value="כללית">כללית</option>
+                    <option value="מכבי">מכבי</option>
+                    <option value="מאוחדת">מאוחדת</option>
+                    <option value="לאומית">לאומית</option>
+                </select>
+            </div>
+        </div>
+
+        <h3>פרטי התקשרות והורים</h3>
+        <div class="grid">
+            <div class="field"><label>שם האם *</label><input type="text" name="motherName" required></div>
+            <div class="field"><label>טלפון נייד אם *</label><input type="tel" name="motherPhone" required></div>
+            <div class="field"><label>שם האב *</label><input type="text" name="fatherName" required></div>
+            <div class="field"><label>טלפון נייד אב *</label><input type="tel" name="fatherPhone" required></div>
+            <div class="field full-width"><label>כתובת מגורים *</label><input type="text" name="address" required></div>
+            <div class="field"><label>טלפון בבית</label><input type="tel" name="homePhone"></div>
+        </div>
+
+        <h3>מידע רפואי וצרכים מיוחדים</h3>
+        <div class="field full-width">
+            <label>רגישויות, מאכלים, מחלות או מידע רפואי חשוב (פרט ככל הניתן) *</label>
+            <textarea name="medicalInfo" required placeholder="אם אין, נא לכתוב 'אין'"></textarea>
+        </div>
+
+        <h3>ציפיות ומידע נוסף</h3>
+        <div class="field full-width">
+            <label>מהן הציפיות שלך מהצוות?</label>
+            <textarea name="expectationsStaff"></textarea>
+        </div>
+        <div class="field full-width">
+            <label>מהן הציפיות שלך מהגן?</label>
+            <textarea name="expectationsGarden"></textarea>
+        </div>
+        <div class="field full-width">
+            <label>מהן הציפיות שלך מהניהול?</label>
+            <textarea name="expectationsManagement"></textarea>
+        </div>
+        <div class="field full-width">
+            <label>ספרי לנו על אוצרך (מה הוא אוהב, הרגלי שינה, מידע נחוץ)?</label>
+            <textarea name="aboutChild"></textarea>
+        </div>
+
+        <div class="field full-width">
+            <label>מורשי איסוף נוספים (שם וטלפון)</label>
+            <input type="text" name="pickupAuth" placeholder="לדוגמה: סבתא מרים 050-1234567">
+        </div>
+
+        <h3>חתימת הורה ואישור ההסכם</h3>
+        <p style="font-size: 13px; color: #555;">אני מצהיר כי קראתי את התקנון ואני מסכים לכל תנאיו.</p>
+        <div class="signature-area">
+            <button type="button" class="clear-btn" id="clear">נקה חתימה</button>
+            <canvas id="sig-canvas"></canvas>
+        </div>
+
+        <button type="submit" class="btn-submit">שלח טופס רישום</button>
+    </form>
+</div>
+
+<script>
+    const canvas = document.getElementById('sig-canvas');
+    const signaturePad = new SignaturePad(canvas, { backgroundColor: 'rgb(255, 255, 255)' });
+
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+        signaturePad.clear();
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    document.getElementById('clear').addEventListener('click', () => signaturePad.clear());
+
+    document.getElementById('regForm').onsubmit = async (e) => {
+        e.preventDefault();
+        if (signaturePad.isEmpty()) {
+            alert("נא לחתום לפני השליחה");
+            return;
+        }
+
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries());
+        data.signature = signaturePad.toDataURL(); // הופך את החתימה לתמונה
+        data.regDate = new Date().toLocaleString('he-IL');
+
+        try {
+            const res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (res.ok) {
+                alert("הרישום בוצע בהצלחה!");
+                location.reload();
+            } else {
+                alert("שגיאה בשליחת הנתונים.");
+            }
+        } catch (err) {
+            alert("לא ניתן להתחבר לשרת.");
+        }
+    };
+</script>
+
+</body>
+</html>

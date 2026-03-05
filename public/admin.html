@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ניהול והדפסת טפסים - גן הקסום</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial; background: #f4f4f4; padding: 20px; }
+        .no-print { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .record-card { border-bottom: 1px solid #eee; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-print { background: #2c5282; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* עיצוב לדף ההדפסה בלבד */
+        #full-document { display: none; }
+
+        @media print {
+            .no-print { display: none !important; }
+            #full-document { 
+                display: block !important; 
+                background: white; 
+                width: 100%;
+                padding: 0;
+            }
+            .print-page {
+                border: 2px solid #000;
+                padding: 30px;
+                line-height: 1.5;
+                font-size: 14px;
+            }
+            .header-table { width: 100%; border-bottom: 2px solid #000; margin-bottom: 20px; }
+            .info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            .info-table td { border: 1px solid #000; padding: 8px; vertical-align: top; }
+            h1, h2 { margin: 5px 0; text-align: center; }
+            .section-title { background: #eee; font-weight: bold; padding: 5px; border: 1px solid #000; margin-top: 15px; }
+            img { max-width: 250px; display: block; margin-top: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="no-print">
+    <h2>רשימת הרשמה - תשפ"ו</h2>
+    <div id="list">טוען נתונים...</div>
+</div>
+
+<div id="full-document"></div>
+
+<script>
+    async function loadRecords() {
+        const res = await fetch('/api/admin/list');
+        const data = await res.json();
+        const listDiv = document.getElementById('list');
+        
+        if (data.length === 0) {
+            listDiv.innerHTML = "אין נרשמים כרגע.";
+            return;
+        }
+
+        listDiv.innerHTML = data.map((item, index) => `
+            <div class="record-card">
+                <div>
+                    <strong>${item.childName}</strong> (ת"ז: ${item.childID})<br>
+                    <small>נרשם ב: ${item.regDate}</small>
+                </div>
+                <button class="btn-print" onclick="generateFullDoc(${index})">הדפס טופס מלא</button>
+            </div>
+        `).join('');
+        window.allRecords = data;
+    }
+
+    function generateFullDoc(index) {
+        const r = window.allRecords[index];
+        const doc = document.getElementById('full-document');
+        
+        doc.innerHTML = `
+            <div class="print-page">
+                <div class="header-table">
+                    <h1>הסכם רישום לגן הילדים - "הגן הקסום"</h1>
+                    <h2 style="font-size: 16px;">עמותת הילה / ילדי רחל ברכה - תשפ"ו</h2>
+                </div>
+
+                <div class="section-title">פרטי הילד/ה</div>
+                <table class="info-table">
+                    <tr>
+                        <td width="50%"><strong>שם הילד/ה:</strong> ${r.childName}</td>
+                        <td width="50%"><strong>ת.ז. ילד:</strong> ${r.childID}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>תאריך לידה:</strong> ${r.childDOB}</td>
+                        <td><strong>קופת חולים:</strong> ${r.healthFund}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">פרטי הורים והתקשרות</div>
+                <table class="info-table">
+                    <tr>
+                        <td><strong>שם האם:</strong> ${r.motherName}</td>
+                        <td><strong>טלפון אמא:</strong> ${r.motherPhone}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>שם האב:</strong> ${r.fatherName}</td>
+                        <td><strong>טלפון אבא:</strong> ${r.fatherPhone}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>כתובת מגורים:</strong> ${r.address}</td>
+                    </tr>
+                </table>
+
+                <div class="section-title">מידע רפואי וצרכים</div>
+                <div style="border:1px solid #000; padding:10px; min-height:50px;">
+                    ${r.medicalInfo}
+                </div>
+
+                <div class="section-title">ציפיות מהמעון ומידע נוסף</div>
+                <p><strong>ציפיות מהצוות:</strong> ${r.expectationsStaff || '-'}</p>
+                <p><strong>ציפיות מהגן:</strong> ${r.expectationsGarden || '-'}</p>
+                <p><strong>ציפיות מהניהול:</strong> ${r.expectationsManagement || '-'}</p>
+                <p><strong>על הילד/ה (הרגלים/אהבות):</strong> ${r.aboutChild || '-'}</p>
+                <p><strong>מורשי איסוף:</strong> ${r.pickupAuth || '-'}</p>
+
+                <div class="section-title" style="margin-top:20px;">הסכם ותקנון (תמצית חתומה)</div>
+                <p style="font-size: 11px;">
+                    ההורים מאשרים כי קראו את תקנון הגן הכולל שעות פעילות (07:30-16:00), נהלי מחלות, ביטוח ותשלומים. 
+                    החתימה מטה מהווה אישור סופי ומוחלט לכל סעיפי ההסכם של עמותת הילה לשנה"ל תשפ"ו.
+                </p>
+
+                <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="text-align: center;">
+                        <img id="printSig" src="${r.signature}" style="border-bottom: 2px solid #000;">
+                        <p><strong>חתימת הורה</strong></p>
+                    </div>
+                    <div style="text-align: left;">
+                        <p>תאריך חתימה: ${r.regDate}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // מחכים שהחתימה תיטען
+        const img = document.getElementById('printSig');
+        if (img.complete) {
+            window.print();
+        } else {
+            img.onload = () => window.print();
+        }
+    }
+
+    loadRecords();
+</script>
+</body>
+</html>
